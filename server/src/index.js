@@ -1,37 +1,83 @@
 import express from "express";
-import { toNodeHandler } from "better-auth/node";
-import cors from 'cors'
-import { auth } from "./lib/auth.js"
-const app=express();
+import { auth } from "./lib/auth.js";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import cors from "cors";
+
+console.log("Auth instance:", auth ? "loaded" : "failed to load");
+
+const app = express();
+const port = 3005;
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", 
+    methods: ["GET", "POST", "PUT", "DELETE"], 
+    credentials: true, 
+  })
+);
 
 app.use(express.json());
-app.use(
-    cors({
-        origin:"http://localhost:3000",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
-    }))
 
-// Debug middleware
-app.use((req, res, next) => {
-    if (req.path.includes('/device')) {
-        console.log('Device auth request:', {
-            method: req.method,
-            path: req.path,
-            body: req.body,
-            query: req.query
-        });
-    }
-    next();
+app.all(/^\/api\/auth/, async (req, res, next) => {
+  console.log(`Auth request: ${req.method} ${req.path}`);
+  try {
+    const handler = toNodeHandler(auth);
+    await handler(req, res, next);
+  } catch (error) {
+    console.error("Auth error:", {
+      message: error.message,
+      stack: error.stack,
+      cause: error.cause
+    });
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
 });
 
-app.use('/api/auth', toNodeHandler(auth));
+// Fixed: This endpoint now properly handles Bearer token authentication
+app.get("/api/me", async (req, res) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+    
+    if (!session) {
+      return res.status(401).json({ error: "No active session" });
+    }
+    
+    return res.json(session);
+  } catch (error) {
+    console.error("Session error:", error);
+    return res.status(500).json({ error: "Failed to get session", details: error.message });
+  }
+});
 
-app.get('/',(req,res)=>{
-    res.send('Hello');
-})
+app.get("/api/me/:access_token", async (req, res) => {
+  const { access_token } = req.params;
+  console.log(access_token);
+  
+  try {
+    const session = await auth.api.getSession({
+      headers: {
+        authorization: `Bearer ${access_token}`
+      }
+    });
+    
+    if (!session) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    
+    return res.json(session);
+  } catch (error) {
+    console.error("Token validation error:", error);
+    return res.status(401).json({ error: "Unauthorized", details: error.message });
+  }
+});
 
+app.get("/device", async (req, res) => {
+  const { user_code } = req.query; // Fixed: should be req.query, not req.params
+  res.redirect(`http://localhost:3000/device?user_code=${user_code}`);
+});
 
-app.listen(process.env.PORT,()=>{
-    console.log(`Server is running on port http://localhost:${process.env.PORT}`);
-})
+app.listen(port, () => {
+  console.log(`Server running on port http://localhost:${port}`);
+});
