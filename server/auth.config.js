@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { deviceAuthorization } from "better-auth/plugins"; 
+import { PrismaClient } from '@prisma/client';
 
-import prisma from './db.js'
+const prisma = new PrismaClient();
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -10,17 +12,17 @@ export const auth = betterAuth({
     }),
     basePath:'/api/auth',
     trustedOrigins: ["http://localhost:3000"],
-     plugins: [
-    deviceAuthorization({ 
-      verificationUri: "/device", 
-    }), 
-  ],
+    plugins: [
+        deviceAuthorization({ 
+            verificationUri: "/device", 
+        }), 
+    ],
     socialProviders: { 
-    github: { 
-      clientId: process.env.GITHUB_CLIENT_ID , 
-      clientSecret: process.env.GITHUB_CLIENT_SECRET, 
+        github: { 
+            clientId: process.env.GITHUB_CLIENT_ID, 
+            clientSecret: process.env.GITHUB_CLIENT_SECRET, 
+        }, 
     }, 
-  }, 
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL,
 })

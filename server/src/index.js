@@ -4,17 +4,31 @@ import cors from 'cors'
 import { auth } from "./lib/auth.js"
 const app=express();
 
+app.use(express.json());
 app.use(
     cors({
         origin:"http://localhost:3000",
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     }))
-app.all('/api/auth/*splat', toNodeHandler(auth));
 
-app.use(express.json());
+// Debug middleware
+app.use((req, res, next) => {
+    if (req.path.includes('/device')) {
+        console.log('Device auth request:', {
+            method: req.method,
+            path: req.path,
+            body: req.body,
+            query: req.query
+        });
+    }
+    next();
+});
+
+app.use('/api/auth', toNodeHandler(auth));
+
 app.get('/',(req,res)=>{
-    res.send('Hllo');
+    res.send('Hello');
 })
 
 
