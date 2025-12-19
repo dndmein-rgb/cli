@@ -5,6 +5,7 @@ import chalk from "chalk";
 import figlet from "figlet";
 import { Command } from "commander";
 import {login,logout,whoami} from './commands/auth/login.js'
+import {wakeUp } from './commands/ai/wakeUp.js'
 
 async function main() {
   //Display Banner
@@ -18,7 +19,7 @@ async function main() {
         whitespaceBreak: true,
       })
     ))
-    console.log(chalk.green("Welcome to Orbital CLI")
+    console.log(chalk.gray("A Cli based AI tool \n")
   );
 
 const program=new Command("orbital");
@@ -29,12 +30,13 @@ program
   .addCommand(login)
   .addCommand(logout)
   .addCommand(whoami)
+  .addCommand(wakeUp)
 
   program.action(()=>{
     program.help();
   })
 
-program.parse();
+program.parse(); 
 }
 
 main().catch((err)=>{
