@@ -255,7 +255,7 @@ export async function startChat(mode = "chat", conversationId = null) {
   try {
     // Display intro banner
     intro(
-      boxen(chalk.bold.cyan("🚀 Orbit AI Chat"), {
+      boxen(chalk.bold.cyan("🚀 GemCli Chat"), {
         padding: 1,
         borderStyle: "double",
         borderColor: "cyan",

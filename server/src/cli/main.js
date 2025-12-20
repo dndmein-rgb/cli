@@ -11,7 +11,7 @@ async function main() {
   //Display Banner
   console.log(
     chalk.cyan(
-      figlet.textSync("Orbital CLI", {
+      figlet.textSync("GemCLI", {
         font: "Standard",
         horizontalLayout: "default",
         verticalLayout: "default",
@@ -22,11 +22,11 @@ async function main() {
     console.log(chalk.gray("A Cli based AI tool \n")
   );
 
-const program=new Command("orbital");
+const program=new Command("gemcli");
 
 program
   .version("1.0.0")
-  .description("Orbital CLI")
+  .description("gemcli CLI")
   .addCommand(login)
   .addCommand(logout)
   .addCommand(whoami)
@@ -40,6 +40,6 @@ program.parse();
 }
 
 main().catch((err)=>{
-    console.log(chalk.red("Error running orbital CLI"),err)
+  console.log(chalk.red("Error running gemcli CLI"),err)
     process.exit(1)
 })

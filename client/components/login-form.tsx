@@ -14,7 +14,7 @@ const LoginForm = () => {
     <div className="flex gap-6 flex-col justify-center items-center h-screen    ">
         <div className="flex flex-col items-center justify-center space-y-4">
             <Image src={'login.svg'} alt={'login'} height={500} width={500} />
-            <h1 className="text-6xl font-extrabold text-indigo-400">Welcome back! to orbital cli</h1>
+            <h1 className="text-6xl font-extrabold text-indigo-400">Welcome back! to gemcli</h1>
             <p className="text-base font-medium text-zinc-400">Login to your account for allowing device flow</p>
         </div>
         <Card className="border-dashed border-2">
